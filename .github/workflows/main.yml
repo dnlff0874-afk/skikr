@@ -1,0 +1,31 @@
+name: Deploy Cloud VPS
+
+# تشغيل الكود تلقائياً عند الضغط على زر Push أو يدوياً
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  provision-vps:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. جلب الكود من المستودع
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 2. تثبيت أداة Terraform المسؤولة عن بناء السيرفرات
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    # 3. تهيئة بيئة العمل
+    - name: Terraform Init
+      run: terraform init
+
+    # 4. بناء وتفعيل السيرفر السحابي تلقائياً
+    - name: Terraform Apply
+      env:
+        # هنا يتم وضع مفتاح السحابة الخاص بك بشكل آمن في إعدادات GitHub Secrets
+        DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }} 
+      run: terraform apply -auto-approve
